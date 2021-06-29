@@ -4,16 +4,20 @@ app = Flask(__name__)
 db = pymysql.connect(host='localhost', port=3306, user='root', passwd='rlagkrrbs', db='web_test', charset="utf8")
 cursor = db.cursor()
 
+# 연결됐는지 확인 화면에 ok라고 뜸
 # http://localhost:5000/
 @app.route("/", methods=["GET"])
 def hello():
     return "OK"
 
+# templates폴더 안에 html 열기
 # http://localhost:5000/page
 @app.route("/page", methods=["GET"])
 def home_page():
     return render_template('index.html')
 
+# insert는 POST 사용
+# db로 클라이언트에서 입력한 이름 한국어 수학 영어 점수를 insert함
 @app.route("/student", methods=["POST"])
 def insert_student():
     name = request.form["name"]
@@ -26,7 +30,10 @@ def insert_student():
     cursor.execute(sql)
     db.commit()
     return "OK"
-#
+
+# select는 GET 사용
+# db에서 select로 가져온 데이터들(results)을
+# ajax를 통해 html과 연동하여 클라이언트 화면에 이름과 점수를 보이게함
 @app.route("/students", methods=["GET"])
 def get_students():
     sql = """select * from student_score"""
@@ -44,6 +51,8 @@ def get_students():
         })
     return jsonify(students_dict)
 
+# 수정할 때는 PUT 사용
+# 클라이언트에서 이름, 한국어, 수학, 영어 입력값을 받아와서 db update함
 @app.route("/student", methods=["PUT"])
 def update_student():
     name = request.form["name"]
@@ -58,7 +67,9 @@ def update_student():
     cursor.execute(sql)
     db.commit()
     return "OK"
-#
+
+# 삭제는 DELETE
+# 클라이언트에서 입력한 이름을 가져와서 db에서 입력한 이름만 삭제
 @app.route("/student", methods=["DELETE"])
 def delete_student():
     name = request.args.get("name")
