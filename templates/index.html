@@ -7,6 +7,7 @@
     <title>시험점수</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <style>
+<!--    css부분 디자인 부분 -->
         body {
             margin: 0px;
         }
@@ -45,14 +46,11 @@
     </style>
 </head>
 <body>
-
     <div class="top-container">
         <div class="head-container">
             <h2>학생 점수 관리 시스템</h2>
             <img width="300" height="300" src="{{ url_for('static', filename='image.jpg') }}" />
         </div>
-
-
         <div class="input-container">
             <div>
                 학생이름: <input id="student-name" type="text" />
@@ -62,7 +60,6 @@
                 <br />
             </div>
         </div>
-
         <br />
         <div class="button-container">
             <button id="input_btn" onclick="saveBtnClick()">저장</button>
@@ -77,13 +74,12 @@
             <button id="input_btn" onclick="sortBtnClick()">정렬</button>
         </div>
         <br />
-
-
         <ul id="student-list">
         </ul>
     </div>
 <script>
-  // 코드 작성!
+<!--  // ajax 비동기통신-->
+<!--  db에서 가져온 데이터가 ajax를 통해서 responses 변수로 들어옴-->
   $.ajax({
       type: "GET",
       url: "/students",
@@ -97,6 +93,8 @@
           }
       }
   })
+
+<!--  저장버튼 누르면 ajax를 통해서 app.py로 보냄-->
   function saveBtnClick() {
     //let radio = $('input:radio[name="btn_radio"]:checked').val();
     //if (radio === "POST") {
@@ -119,6 +117,7 @@
             }
         })
     }
+    <!--  삭제버튼 누르면 ajax를 통해서 이름 데이터를 app.py로 보냄-->
     function deleteBtnClick(){
         let name = $("#student-name").val();
         console.log(name)
@@ -132,6 +131,7 @@
             }
         })
     }
+    <!--  수정버튼 누르면 ajax를 통해서 이름 한국어, 수학, 영어 데이터를 app.py로 보냄-->
     function modifyBtnClick(){
         let name = $("#student-name").val();
         let korean = $("#student-korean").val();
@@ -153,6 +153,7 @@
         })
     }
 
+<!-- 라디오버튼에 따른 정렬 -->
 function sortBtnClick() {
     $("#student-list").empty()
     let radio = $('input:radio[name="btn_radio"]:checked').val();
