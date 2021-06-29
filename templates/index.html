@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시험점수</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        body {
+            margin: 0px;
+        }
+        .top-container{
+            margin-left: cal(50% - 300px);
+            height: 100%
+        }
+        .head-container{
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 55px;
+        flex-direction: column;
+
+        }
+        .input-container{
+            width: 100%;
+        height: 30px;
+        display: flex;
+        justify-content: center;
+        margin-top: 30px;
+
+        }
+        .button-container{
+
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+
+        }
+        #input_btn{
+            margin-left: 1%;
+        }
+        .radioBtn-container{
+            display: flex;
+      justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-container">
+        <div class="head-container">
+            <h2>학생 점수 관리 시스템</h2>
+            <img width="300" height="300" src="{{ url_for('static', filename='image.jpg') }}" />
+        </div>
+
+
+        <div class="input-container">
+            <div>
+                학생이름: <input id="student-name" type="text" />
+                국어: <input id="student-korean" type="number" />
+                수학: <input id="student-math" type="number" />
+                영어: <input id="student-english" type="number" />
+                <br />
+            </div>
+        </div>
+
+        <br />
+        <div class="button-container">
+            <button id="input_btn" onclick="saveBtnClick()">저장</button>
+            <button id="input_btn" onclick="deleteBtnClick()">삭제</button>
+            <button id="input_btn" onclick="modifyBtnClick()">수정</button>
+        </div>
+        <br />
+        <div class="radioBtn-container">
+            국어 : <input  type="radio" name="btn_radio" value="k" checked="checked">
+            수학 : <input  type="radio" name="btn_radio" value="m">
+            영어 : <input  type="radio" name="btn_radio" value="e">
+            <button id="input_btn" onclick="sortBtnClick()">정렬</button>
+        </div>
+        <br />
+
+
+        <ul id="student-list">
+        </ul>
+    </div>
+<script>
+  // 코드 작성!
+  $.ajax({
+      type: "GET",
+      url: "/students",
+      data: {},
+      success: function(responses) {
+          for (let i = 0; i < responses.length; i++) {
+              let student = responses[i];
+              $("#student-list").append(
+                  `<li>${student["name"]}, 국어 : ${student["korean"]}, 수학 : ${student["math"]}, 영어 : ${student["english"]}</li>`
+              )
+          }
+      }
+  })
+  function saveBtnClick() {
+    //let radio = $('input:radio[name="btn_radio"]:checked').val();
+    //if (radio === "POST") {
+    let name = $("#student-name").val();
+    let korean = $("#student-korean").val();
+    let math = $("#student-math").val();
+    let english = $("#student-english").val();
+        $.ajax({
+            type: "POST",
+            url: "/student",
+            data: {
+                name: name,
+                korean: korean,
+                math: math,
+                english: english
+            },
+            success: function(response) {
+                alert("저장에 성공했습니다!")
+                window.location.reload();
+            }
+        })
+    }
+    function deleteBtnClick(){
+        let name = $("#student-name").val();
+        console.log(name)
+        $.ajax({
+            type: "DELETE",
+            url: "/student?name=" + "'" +name+ "'",
+            data: {},
+            success: function(response) {
+                alert("삭제에 성공했습니다!")
+                window.location.reload();
+            }
+        })
+    }
+    function modifyBtnClick(){
+        let name = $("#student-name").val();
+        let korean = $("#student-korean").val();
+        let math = $("#student-math").val();
+        let english = $("#student-english").val();
+        $.ajax({
+            type: "PUT",
+            url: "/student",
+            data: {
+                name: name,
+                korean: korean,
+                math: math,
+                english: english,
+            },
+            success: function(response) {
+                alert("수정에 성공했습니다!")
+                window.location.reload();
+            }
+        })
+    }
+
+function sortBtnClick() {
+    $("#student-list").empty()
+    let radio = $('input:radio[name="btn_radio"]:checked').val();
+    //console.log("test :" + radio)
+    if (radio === "k") {
+        console.log(radio)
+        $.ajax({
+            type: "GET",
+            url: "/students",
+            data: {},
+            success: function(responses) {
+                let data = []
+                let korean_score=[]
+                for (let i = 0; i < responses.length; i++) {
+                    //console.log(responses[i]["korean"])
+                    data.push(responses[i]);
+                    //korean_score.push(responses[i]["korean"]);
+
+                // for (let i = 0; i < responses.length; i++) {
+                //     console.log(responses[i]["korean"])
+                //     korean_score.push(responses[i]["korean"]);
+
+                // }
+                // alert("내림차순 정렬!")
+                // console.log(korean_score)
+                // korean_score.sort(function(a,b){
+                //     return b- a;
+                // })
+
+                // for(let i = 0; i <korean_score.length; i++){
+
+                //     $("#student-list").append(
+                //         `<li>${korean_score[i]}</li>`
+                //     )
+                // }
+                }
+                console.log("----------")
+                console.log(data)
+                data.sort( function(a, b) {
+                    return b["korean"] - a["korean"];
+                });
+                console.log(data)
+                for (let i = 0; i < data.length; i++) {
+                   let student = data[i];
+                   $("#student-list").append(
+                        `<li>${student["name"]}, 국어 : ${student["korean"]}, 수학 : ${student["math"]}, 영어 : ${student["english"]}</li>`
+                    )
+                }
+            }
+        })
+
+        // let name = $("#student-name").val();
+        // let age = $("#student-age").val();
+        // $.ajax({
+        //     type: "POST",
+        //     url: "/student",
+        //     data: {
+        //         name: name,
+        //         age: age
+        //     },
+        //     success: function(response) {
+        //         alert("저장에 성공했습니다!")
+        //         window.location.reload();
+
+
+    } else if (radio === "m") {
+        console.log("m")
+        $.ajax({
+            type: "GET",
+            url: "/students",
+            data: {},
+            success: function(responses) {
+                let data = []
+                let korean_score=[]
+                for (let i = 0; i < responses.length; i++) {
+                    //console.log(responses[i]["korean"])
+                    data.push(responses[i]);
+                    //korean_score.push(responses[i]["korean"]);
+
+                // for (let i = 0; i < responses.length; i++) {
+                //     console.log(responses[i]["korean"])
+                //     korean_score.push(responses[i]["korean"]);
+
+                // }
+                // alert("내림차순 정렬!")
+                // console.log(korean_score)
+                // korean_score.sort(function(a,b){
+                //     return b- a;
+                // })
+
+                // for(let i = 0; i <korean_score.length; i++){
+
+                //     $("#student-list").append(
+                //         `<li>${korean_score[i]}</li>`
+                //     )
+                // }
+                }
+                console.log("----------")
+                console.log(data)
+                data.sort( function(a, b) {
+                    return b["math"] - a["math"];
+                });
+                console.log(data)
+                for (let i = 0; i < data.length; i++) {
+                   let student = data[i];
+                   $("#student-list").append(
+                        `<li>${student["name"]}, 국어 : ${student["korean"]}, 수학 : ${student["math"]}, 영어 : ${student["english"]}</li>`
+                    )
+                }
+            }
+        })
+
+        // let name = $("#student-name").val();
+        // let age = $("#student-age").val();
+        // $.ajax({
+        //     type: "POST",
+        //     url: "/student",
+        //     data: {
+        //         name: name,
+        //         age: age
+        //     },
+        //     success: function(response) {
+        //         alert("저장에 성공했습니다!")
+        //         window.location.reload();
+
+    } else if (radio === "e") {
+        console.log("e")
+        $.ajax({
+            type: "GET",
+            url: "/students",
+            data: {},
+            success: function(responses) {
+                let data = []
+                let korean_score=[]
+                for (let i = 0; i < responses.length; i++) {
+                    //console.log(responses[i]["korean"])
+                    data.push(responses[i]);
+                    //korean_score.push(responses[i]["korean"]);
+
+                // for (let i = 0; i < responses.length; i++) {
+                //     console.log(responses[i]["korean"])
+                //     korean_score.push(responses[i]["korean"]);
+
+                // }
+                // alert("내림차순 정렬!")
+                // console.log(korean_score)
+                // korean_score.sort(function(a,b){
+                //     return b- a;
+                // })
+
+                // for(let i = 0; i <korean_score.length; i++){
+
+                //     $("#student-list").append(
+                //         `<li>${korean_score[i]}</li>`
+                //     )
+                // }
+                }
+                console.log("----------")
+                console.log(data)
+                data.sort( function(a, b) {
+                    return b["english"] - a["english"];
+                });
+                console.log(data)
+                for (let i = 0; i < data.length; i++) {
+                   let student = data[i];
+                   $("#student-list").append(
+                        `<li>${student["name"]}, 국어 : ${student["korean"]}, 수학 : ${student["math"]}, 영어 : ${student["english"]}</li>`
+                    )
+                }
+            }
+        })
+
+        // let name = $("#student-name").val();
+        // let age = $("#student-age").val();
+        // $.ajax({
+        //     type: "POST",
+        //     url: "/student",
+        //     data: {
+        //         name: name,
+        //         age: age
+        //     },
+        //     success: function(response) {
+        //         alert("저장에 성공했습니다!")
+        //         window.location.reload();
+
+    }
+}
+    // } else if (radio === "PUT") {
+    //     let student_id = $("#student-id").val();
+    //     let name = $("#student-name").val();
+    //     let age = $("#student-age").val();
+    //     $.ajax({
+    //         type: "PUT",
+    //         url: "/student",
+    //         data: {
+    //             student_id: student_id,
+    //             name: name,
+    //             age: age
+    //         },
+    //         success: function(response) {
+    //             alert("수정에 성공했습니다!")
+    //             window.location.reload();
+    //         }
+    //     })
+    // } else if (radio === "DELETE") {
+    //     let student_id = $("#student-id").val();
+    //     $.ajax({
+    //         type: "DELETE",
+    //         url: "/student?student_id=" + student_id,
+    //         data: {},
+    //         success: function(response) {
+    //             alert("삭제에 성공했습니다!")
+    //             window.location.reload();
+    //         }
+    //     })
+    // }
+
+</script>
+</body>
+</html>
